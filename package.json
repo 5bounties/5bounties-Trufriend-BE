@@ -1,0 +1,67 @@
+{
+	"name": "hackathon-express-starter",
+	"version": "1.0.0",
+	"description": "A boilerplate for making RESTful API using express js",
+	"main": "src/index.ts",
+	"scripts": {
+		"start": "cross-env NODE_ENV=production npx ts-node ./src/index.ts",
+		"dev": "cross-env NODE_ENV=development npx nodemon",
+		"build": "tsc",
+		"test": "cross-env NODE_ENV=test jest",
+		"test:coverage": "cross-env NODE_ENV=test jest --coverage",
+		"test:watch": "cross-env NODE_ENV=test jest --watch",
+		"prepare": "husky",
+		"check:apply": "npx @biomejs/biome check --apply ./src"
+	},
+	"lint-staged": {
+		"*.{ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
+			"biome check --apply --no-errors-on-unmatched"
+		]
+	},
+	"author": "ahargunyllib",
+	"license": "ISC",
+	"devDependencies": {
+		"@biomejs/biome": "1.7.2",
+		"@types/compression": "^1.7.5",
+		"@types/express": "^4.17.21",
+		"@types/jest": "^29.5.12",
+		"@types/jsonwebtoken": "^9.0.5",
+		"@types/morgan": "^1.9.9",
+		"@types/multer": "^1.4.11",
+		"@types/multer-s3": "^3.0.3",
+		"@types/supertest": "^6.0.2",
+		"cross-env": "^7.0.3",
+		"husky": "^9.0.10",
+		"jest": "^29.7.0",
+		"lint-staged": "^15.2.2",
+		"multer-s3": "^3.0.1",
+		"prisma": "^5.13.0",
+		"supertest": "^6.3.4",
+		"ts-jest": "^29.1.2",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.3.3"
+	},
+	"dependencies": {
+		"@aws-sdk/client-s3": "^3.569.0",
+		"@aws-sdk/types": "^3.567.0",
+		"@prisma/client": "^5.13.0",
+		"@types/bcrypt": "^5.0.2",
+		"@types/cors": "^2.8.17",
+		"bcrypt": "^5.1.1",
+		"compression": "^1.7.4",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.1",
+		"express": "^4.18.2",
+		"helmet": "^7.1.0",
+		"http-status": "^1.7.4",
+		"joi": "^17.12.1",
+		"jsonwebtoken": "^9.0.2",
+		"moment": "^2.30.1",
+		"morgan": "^1.10.0",
+		"multer": "^1.4.5-lts.1",
+		"nodemon": "^3.0.3",
+		"pino": "^8.18.0",
+		"pino-pretty": "^10.3.1",
+		"stream": "^0.0.2"
+	}
+}

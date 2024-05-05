@@ -1,0 +1,13 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo 'Styling and testing the projects before commiting'
+
+npx lint-staged
+
+npm run test || {
+  echo 'Testing failed. Add changes and try commit again';
+  false;
+}
+
+echo 'All checks passed, committing now'

@@ -1,0 +1,25 @@
+export interface CreateUserForm {
+	name: string;
+	username: string;
+	email: string;
+	password: string;
+	avatarUrl: string;
+}
+
+export interface UpdateUserForm {
+	name?: string;
+	username?: string;
+	email?: string;
+	password?: string;
+}
+
+export interface User {
+	id: string;
+	name: string;
+	username: string;
+	email: string;
+	avatarUrl: string;
+	password: string;
+	createdAt: Date;
+	updatedAt: Date;
+}
