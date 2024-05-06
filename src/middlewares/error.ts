@@ -18,6 +18,8 @@ export const errorHandlerEndpoint = (
 	res: Response,
 	next: NextFunction,
 ) => {
+	res.locals.errorMessage = error.message;
+
 	if (error instanceof ValidationError) {
 		res.status(httpStatus.BAD_REQUEST).send({
 			status: httpStatus.BAD_REQUEST,
