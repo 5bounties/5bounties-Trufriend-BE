@@ -1,6 +1,8 @@
 import path from "node:path";
+import httpStatus from "http-status";
 import multer from "multer";
 import { multerS3 } from "../database/s3";
+import { ApiError } from "../utils/ApiError";
 
 // function to sanitize files and send error for unsupported files
 const sanitizeFile = (
@@ -23,7 +25,7 @@ const sanitizeFile = (
 	}
 
 	// pass error msg to callback, which can be displayed in frontend
-	cb(new Error("Error: File type not allowed!"));
+	cb(new ApiError(httpStatus.BAD_REQUEST, "File type not allowed!"));
 };
 
 // our middleware
