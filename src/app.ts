@@ -2,6 +2,7 @@ import compression from "compression";
 import cors from "cors";
 import express, { type Application } from "express";
 import helmet from "helmet";
+import { deserializeToken } from "./middlewares/auth";
 import { errorHandlerEndpoint, unknownEndpoint } from "./middlewares/error";
 import { router } from "./routes";
 import { config } from "./utils/config";

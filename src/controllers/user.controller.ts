@@ -1,6 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import {
+	getJournalById,
+	getJournalsByUserId,
+} from "../services/journal.service";
+import { getPostById, getPostsByUserId } from "../services/post.service";
+import {
 	createUser,
 	deleteUser,
 	getAllUsers,
@@ -110,6 +115,80 @@ export const destroyUser = async (
 			status: httpStatus.OK,
 			message: "User deleted successfully",
 			data: [],
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const fetchUserJournals = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const id = res.locals.user.id;
+		const journals = await getJournalsByUserId(id);
+
+		return res.status(httpStatus.OK).send({
+			status: httpStatus.OK,
+			message: "Journals retrieved successfully",
+			data: journals,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const fetchJournal = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const journal = await getJournalById(req.params.id);
+
+		return res.status(httpStatus.OK).send({
+			status: httpStatus.OK,
+			message: "Journal fetched successfully",
+			data: journal,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const fetchUserPosts = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const id = res.locals.user.id;
+		const posts = await getPostsByUserId(id);
+
+		return res.status(httpStatus.OK).send({
+			status: httpStatus.OK,
+			message: "Posts retrieved successfully",
+			data: posts,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const fetchPost = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const post = await getPostById(req.params.id);
+
+		return res.status(httpStatus.OK).send({
+			status: httpStatus.OK,
+			message: "Post fetched successfully",
+			data: post,
 		});
 	} catch (error) {
 		next(error);
