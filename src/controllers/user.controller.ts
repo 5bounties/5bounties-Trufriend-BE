@@ -1,12 +1,17 @@
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import {
+	getJournalById,
+	getJournalsByUserId,
+} from "../services/journal.service";
+import {
 	createUser,
 	deleteUser,
 	getAllUsers,
 	getUserById,
 	updateUser,
 } from "../services/user.service";
+import { logger } from "../utils/logger";
 
 export const fetchAllUsers = async (
 	req: Request,
@@ -110,6 +115,43 @@ export const destroyUser = async (
 			status: httpStatus.OK,
 			message: "User deleted successfully",
 			data: [],
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const fetchUserJournals = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const id = res.locals.user.id;
+		const journals = await getJournalsByUserId(id);
+
+		return res.status(httpStatus.OK).send({
+			status: httpStatus.OK,
+			message: "Journals retrieved successfully",
+			data: journals,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const fetchJournal = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const journal = await getJournalById(req.params.id);
+
+		return res.status(httpStatus.OK).send({
+			status: httpStatus.OK,
+			message: "Journal fetched successfully",
+			data: journal,
 		});
 	} catch (error) {
 		next(error);

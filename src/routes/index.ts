@@ -1,7 +1,7 @@
 import express, { type Router } from "express";
 import { authRouter } from "./auth.route";
 import { dummyRouter } from "./dummy.route";
-import { emotionRouter } from "./emotion.route";
+import { journalRouter } from "./journal.route";
 import { usersRouter } from "./user.route";
 
 export const router: Router = express.Router();
@@ -25,8 +25,8 @@ const defaultRoutes: Route[] = [
 		route: authRouter,
 	},
 	{
-		path: "/emotion",
-		route: emotionRouter,
+		path: "/journal",
+		route: journalRouter,
 	},
 ];
 
