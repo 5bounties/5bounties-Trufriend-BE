@@ -4,6 +4,7 @@ import {
 	editUser,
 	fetchAllUsers,
 	fetchJournal,
+	fetchPost,
 	fetchUser,
 	fetchUserJournals,
 	fetchUserPosts,
@@ -40,7 +41,7 @@ usersRouter.get(
 	deserializeToken,
 	requireAuth,
 	validateParams(postIdParamSchema),
-	fetchJournal,
+	fetchPost,
 );
 
 usersRouter.get("/", requireSuperadmin, fetchAllUsers);
