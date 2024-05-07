@@ -4,6 +4,7 @@ import {
 	getJournalById,
 	getJournalsByUserId,
 } from "../services/journal.service";
+import { getPostById, getPostsByUserId } from "../services/post.service";
 import {
 	createUser,
 	deleteUser,
@@ -11,7 +12,6 @@ import {
 	getUserById,
 	updateUser,
 } from "../services/user.service";
-import { logger } from "../utils/logger";
 
 export const fetchAllUsers = async (
 	req: Request,
@@ -152,6 +152,43 @@ export const fetchJournal = async (
 			status: httpStatus.OK,
 			message: "Journal fetched successfully",
 			data: journal,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const fetchUserPosts = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const id = res.locals.user.id;
+		const posts = await getPostsByUserId(id);
+
+		return res.status(httpStatus.OK).send({
+			status: httpStatus.OK,
+			message: "Posts retrieved successfully",
+			data: posts,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const fetchPost = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const post = await getPostById(req.params.id);
+
+		return res.status(httpStatus.OK).send({
+			status: httpStatus.OK,
+			message: "Post fetched successfully",
+			data: post,
 		});
 	} catch (error) {
 		next(error);

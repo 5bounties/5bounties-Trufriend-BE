@@ -6,6 +6,7 @@ import {
 	fetchJournal,
 	fetchUser,
 	fetchUserJournals,
+	fetchUserPosts,
 	storeUser,
 } from "../controllers/user.controller";
 import {
@@ -16,6 +17,7 @@ import {
 import { uploadImage } from "../middlewares/uploadImage";
 import { validateBody, validateParams } from "../middlewares/validation";
 import { journalIdParamSchema } from "../validations/journal.validation";
+import { postIdParamSchema } from "../validations/post.validation";
 import {
 	createUserFormSchema,
 	userIdParamSchema,
@@ -29,6 +31,15 @@ usersRouter.get(
 	deserializeToken,
 	requireAuth,
 	validateParams(journalIdParamSchema),
+	fetchJournal,
+);
+
+usersRouter.get("/post", deserializeToken, requireAuth, fetchUserPosts);
+usersRouter.get(
+	"/post/:id",
+	deserializeToken,
+	requireAuth,
+	validateParams(postIdParamSchema),
 	fetchJournal,
 );
 
