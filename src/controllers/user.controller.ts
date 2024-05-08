@@ -4,6 +4,7 @@ import {
 	getJournalById,
 	getJournalsByUserId,
 } from "../services/journal.service";
+import { getMutedWordsByUserId } from "../services/mutes.service";
 import { getPostById, getPostsByUserId } from "../services/post.service";
 import {
 	createUser,
@@ -165,7 +166,8 @@ export const fetchUserPosts = async (
 ) => {
 	try {
 		const id = res.locals.user.id;
-		const posts = await getPostsByUserId(id);
+		const mutedWords = await getMutedWordsByUserId(id);
+		const posts = await getPostsByUserId(id, mutedWords);
 
 		return res.status(httpStatus.OK).send({
 			status: httpStatus.OK,
@@ -183,12 +185,31 @@ export const fetchPost = async (
 	next: NextFunction,
 ) => {
 	try {
-		const post = await getPostById(req.params.id);
+		const mutedWords = await getMutedWordsByUserId(res.locals.user.id);
+		const post = await getPostById(req.params.id, mutedWords);
 
 		return res.status(httpStatus.OK).send({
 			status: httpStatus.OK,
 			message: "Post fetched successfully",
 			data: post,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const fetchUserMutedWords = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const mutedWords = await getMutedWordsByUserId(res.locals.user.id);
+
+		return res.status(httpStatus.OK).send({
+			status: httpStatus.OK,
+			message: "Muted words fetched successfully",
+			data: mutedWords,
 		});
 	} catch (error) {
 		next(error);

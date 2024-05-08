@@ -2,6 +2,7 @@ import express, { type Router } from "express";
 import { authRouter } from "./auth.route";
 import { dummyRouter } from "./dummy.route";
 import { journalRouter } from "./journal.route";
+import { mutesRouter } from "./mutes.route";
 import { postRouter } from "./post.route";
 import { usersRouter } from "./user.route";
 
@@ -32,6 +33,10 @@ const defaultRoutes: Route[] = [
 	{
 		path: "/post",
 		route: postRouter,
+	},
+	{
+		path: "/mutes",
+		route: mutesRouter,
 	},
 ];
 

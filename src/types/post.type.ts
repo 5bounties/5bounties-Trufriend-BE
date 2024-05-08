@@ -27,6 +27,7 @@ export interface Comment {
 	content: string;
 	userId: string;
 	postId: string;
+	isVisible: boolean;
 	createdAt: Date;
 }
 
@@ -37,5 +38,6 @@ export interface Post {
 	authorId: string;
 	likes: Like[];
 	comments: Comment[];
+	isVisible: boolean;
 	createdAt: Date;
 }

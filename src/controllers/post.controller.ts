@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
+import { getMutedWordsByUserId } from "../services/mutes.service";
 import {
 	createComment,
 	createLike,
@@ -20,30 +21,13 @@ export const fetchAllPosts = async (
 	next: NextFunction,
 ) => {
 	try {
-		const posts = await getAllPosts();
+		const mutedWords = await getMutedWordsByUserId(res.locals.user.id);
+		const posts = await getAllPosts(mutedWords);
 
 		return res.status(httpStatus.OK).send({
 			status: httpStatus.OK,
 			message: "Posts fetched successfully",
 			data: posts,
-		});
-	} catch (error) {
-		next(error);
-	}
-};
-
-export const fetchPost = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
-	try {
-		const post = await getPostById(req.params.id);
-
-		return res.status(httpStatus.OK).send({
-			status: httpStatus.OK,
-			message: "Post fetched successfully",
-			data: post,
 		});
 	} catch (error) {
 		next(error);
@@ -167,7 +151,8 @@ export const fetchPostComments = async (
 	next: NextFunction,
 ) => {
 	try {
-		const comments = await getPostComments(req.params.id);
+		const mutedWords = await getMutedWordsByUserId(res.locals.user.id);
+		const comments = await getPostComments(req.params.id, mutedWords);
 
 		return res.status(httpStatus.OK).send({
 			status: httpStatus.OK,
