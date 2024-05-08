@@ -1,12 +1,17 @@
+import httpStatus from "http-status";
+import type { MutedWord } from "mutes.type";
 import type {
+	Comment,
 	CreateCommentForm,
 	CreatePostForm,
 	Post,
 	UpdatePostForm,
 } from "post.type";
 import { db } from "../database/db";
+import { ApiError } from "../utils/ApiError";
+import { logger } from "../utils/logger";
 
-export const getAllPosts = async () => {
+export const getAllPosts = async (mutedWords: MutedWord[]) => {
 	const rawPosts = await db.post.findMany();
 
 	const posts: Post[] = [];
@@ -18,17 +23,45 @@ export const getAllPosts = async () => {
 			},
 		});
 
-		const comments = await db.comment.findMany({
+		const rawComments = await db.comment.findMany({
 			where: {
 				postId: rawPost.id,
 			},
 		});
 
+		const comments: Comment[] = [];
+
+		for (const rawComment of rawComments) {
+			const comment: Comment = {
+				...rawComment,
+				isVisible: true,
+			};
+
+			for (const mutedWord of mutedWords) {
+				if (
+					comment.content.toLowerCase().includes(mutedWord.word.toLowerCase())
+				) {
+					comment.isVisible = false;
+					break;
+				}
+			}
+
+			comments.push(comment);
+		}
+
 		const post: Post = {
 			...rawPost,
 			likes,
 			comments,
+			isVisible: true,
 		};
+
+		for (const mutedWord of mutedWords) {
+			if (post.content.toLowerCase().includes(mutedWord.word.toLowerCase())) {
+				post.isVisible = false;
+				break;
+			}
+		}
 
 		posts.push(post);
 	}
@@ -36,27 +69,70 @@ export const getAllPosts = async () => {
 	return posts;
 };
 
-export const getPostById = async (id: string) => {
-	return {
-		...(await db.post.findUnique({
-			where: {
-				id: id,
-			},
-		})),
-		likes: await db.like.findMany({
-			where: {
-				postId: id,
-			},
-		}),
-		comments: await db.comment.findMany({
-			where: {
-				postId: id,
-			},
-		}),
+export const getPostById = async (id: string, mutedWords: MutedWord[]) => {
+	const rawPost = await db.post.findUnique({
+		where: {
+			id,
+		},
+	});
+
+	if (!rawPost) {
+		throw new ApiError(httpStatus.NOT_FOUND, "Post not found");
+	}
+
+	const likes = await db.like.findMany({
+		where: {
+			postId: rawPost.id,
+		},
+	});
+
+	const rawComments = await db.comment.findMany({
+		where: {
+			postId: rawPost.id,
+		},
+	});
+
+	const comments: Comment[] = [];
+
+	for (const rawComment of rawComments) {
+		const comment: Comment = {
+			...rawComment,
+			isVisible: true,
+		};
+
+		for (const mutedWord of mutedWords) {
+			if (
+				comment.content.toLowerCase().includes(mutedWord.word.toLowerCase())
+			) {
+				comment.isVisible = false;
+				break;
+			}
+		}
+
+		comments.push(comment);
+	}
+
+	const post: Post = {
+		...rawPost,
+		likes,
+		comments,
+		isVisible: true,
 	};
+
+	for (const mutedWord of mutedWords) {
+		if (post.content.toLowerCase().includes(mutedWord.word.toLowerCase())) {
+			post.isVisible = false;
+			break;
+		}
+	}
+
+	return post;
 };
 
-export const getPostsByUserId = async (userId: string) => {
+export const getPostsByUserId = async (
+	userId: string,
+	mutedWords: MutedWord[],
+) => {
 	const rawPosts = await db.post.findMany({
 		where: {
 			authorId: userId,
@@ -72,17 +148,45 @@ export const getPostsByUserId = async (userId: string) => {
 			},
 		});
 
-		const comments = await db.comment.findMany({
+		const rawComments = await db.comment.findMany({
 			where: {
 				postId: rawPost.id,
 			},
 		});
 
+		const comments: Comment[] = [];
+
+		for (const rawComment of rawComments) {
+			const comment: Comment = {
+				...rawComment,
+				isVisible: true,
+			};
+
+			for (const mutedWord of mutedWords) {
+				if (
+					comment.content.toLowerCase().includes(mutedWord.word.toLowerCase())
+				) {
+					comment.isVisible = false;
+					break;
+				}
+			}
+
+			comments.push(comment);
+		}
+
 		const post: Post = {
 			...rawPost,
 			likes,
 			comments,
+			isVisible: true,
 		};
+
+		for (const mutedWord of mutedWords) {
+			if (post.content.toLowerCase().includes(mutedWord.word.toLowerCase())) {
+				post.isVisible = false;
+				break;
+			}
+		}
 
 		posts.push(post);
 	}
@@ -144,12 +248,37 @@ export const deleteLike = async (id: string) => {
 	});
 };
 
-export const getPostComments = async (postId: string) => {
-	return db.comment.findMany({
+export const getPostComments = async (
+	postId: string,
+	mutedWords: MutedWord[],
+) => {
+	const rawComments = await db.comment.findMany({
 		where: {
 			postId,
 		},
 	});
+
+	const comments: Comment[] = [];
+
+	for (const rawComment of rawComments) {
+		const comment: Comment = {
+			...rawComment,
+			isVisible: true,
+		};
+
+		for (const mutedWord of mutedWords) {
+			if (
+				comment.content.toLowerCase().includes(mutedWord.word.toLowerCase())
+			) {
+				comment.isVisible = false;
+				break;
+			}
+		}
+
+		comments.push(comment);
+	}
+
+	return comments;
 };
 
 export const createComment = async (comment: CreateCommentForm) => {

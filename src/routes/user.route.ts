@@ -4,8 +4,10 @@ import {
 	editUser,
 	fetchAllUsers,
 	fetchJournal,
+	fetchPost,
 	fetchUser,
 	fetchUserJournals,
+	fetchUserMutedWords,
 	fetchUserPosts,
 	storeUser,
 } from "../controllers/user.controller";
@@ -40,8 +42,16 @@ usersRouter.get(
 	deserializeToken,
 	requireAuth,
 	validateParams(postIdParamSchema),
-	fetchJournal,
+	fetchPost,
 );
+
+const mutesRouter: Router = Router();
+const wordsRouter: Router = Router();
+
+wordsRouter.get("/", deserializeToken, requireAuth, fetchUserMutedWords);
+
+mutesRouter.use("/word", wordsRouter);
+usersRouter.use("/mutes", mutesRouter);
 
 usersRouter.get("/", requireSuperadmin, fetchAllUsers);
 usersRouter.get("/:id", requireSuperadmin, fetchUser);
