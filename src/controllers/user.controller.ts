@@ -56,8 +56,10 @@ export const storeUser = async (
 	next: NextFunction,
 ) => {
 	try {
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		req.body.avatarUrl = (req.file as any).location;
+		req.body.avatarUrl = `https://uitrssskfwjwscymocmu.supabase.co/storage/v1/object/public/avatar/${
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			(req.file as any).key
+		}`;
 		const newUser = await createUser(req.body);
 
 		return res.status(httpStatus.CREATED).send({

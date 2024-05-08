@@ -41,8 +41,10 @@ export const storePost = async (
 ) => {
 	try {
 		req.body.authorId = res.locals.user.id;
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		req.body.imageUrl = (req.file as any).location;
+		req.body.imageUrl = `https://uitrssskfwjwscymocmu.supabase.co/storage/v1/object/public/avatar/${
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			(req.file as any).key
+		}`;
 		const post = await createPost(req.body);
 
 		return res.status(httpStatus.CREATED).send({
