@@ -1,25 +1,139 @@
 import { Mood } from "@prisma/client";
-import type { CreateJournalForm, UpdateJournalForm } from "journal.type";
+import httpStatus from "http-status";
+import type {
+	CreateJournalForm,
+	JournalResponse,
+	UpdateJournalForm,
+} from "journal.type";
 import { db } from "../database/db";
+import { ApiError } from "../utils/ApiError";
 
-export const getAllJournals = async () => {
-	return db.journal.findMany();
+export const getAllJournals = async (): Promise<JournalResponse[]> => {
+	const rawJournals = await db.journal.findMany();
+
+	const journals: JournalResponse[] = [];
+
+	for (const rawJournal of rawJournals) {
+		const user = await db.user.findUnique({
+			where: {
+				id: rawJournal.userId,
+			},
+			select: {
+				id: true,
+				name: true,
+				username: true,
+				email: true,
+				avatarUrl: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
+
+		if (!user) {
+			throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+		}
+
+		const journal: JournalResponse = {
+			id: rawJournal.id,
+			user: user,
+			content: rawJournal.content,
+			mood: rawJournal.mood,
+			createdAt: rawJournal.createdAt,
+			updatedAt: rawJournal.updatedAt,
+		};
+
+		journals.push(journal);
+	}
+
+	return journals;
 };
 
-export const getJournalById = async (id: string) => {
-	return db.journal.findUnique({
+export const getJournalById = async (id: string): Promise<JournalResponse> => {
+	const rawJournal = await db.journal.findUnique({
 		where: {
 			id: id,
 		},
 	});
+
+	if (!rawJournal) {
+		throw new ApiError(httpStatus.NOT_FOUND, "Journal not found");
+	}
+
+	const user = await db.user.findUnique({
+		where: {
+			id: rawJournal.userId,
+		},
+		select: {
+			id: true,
+			name: true,
+			username: true,
+			email: true,
+			avatarUrl: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	});
+
+	if (!user) {
+		throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+	}
+
+	const journal: JournalResponse = {
+		id: rawJournal.id,
+		user: user,
+		content: rawJournal.content,
+		mood: rawJournal.mood,
+		createdAt: rawJournal.createdAt,
+		updatedAt: rawJournal.updatedAt,
+	};
+
+	return journal;
 };
 
-export const getJournalsByUserId = async (userId: string) => {
-	return db.journal.findMany({
+export const getJournalsByUserId = async (
+	userId: string,
+): Promise<JournalResponse[]> => {
+	const rawJournals = await db.journal.findMany({
 		where: {
 			userId: userId,
 		},
 	});
+
+	const journals: JournalResponse[] = [];
+
+	for (const rawJournal of rawJournals) {
+		const user = await db.user.findUnique({
+			where: {
+				id: rawJournal.userId,
+			},
+			select: {
+				id: true,
+				name: true,
+				username: true,
+				email: true,
+				avatarUrl: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
+
+		if (!user) {
+			throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+		}
+
+		const journal: JournalResponse = {
+			id: rawJournal.id,
+			user: user,
+			content: rawJournal.content,
+			mood: rawJournal.mood,
+			createdAt: rawJournal.createdAt,
+			updatedAt: rawJournal.updatedAt,
+		};
+
+		journals.push(journal);
+	}
+
+	return journals;
 };
 
 export const createJournal = async (journal: CreateJournalForm) => {

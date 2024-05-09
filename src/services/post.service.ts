@@ -2,19 +2,22 @@ import httpStatus from "http-status";
 import type { MutedWord } from "mutes.type";
 import type {
 	Comment,
+	CommentResponse,
 	CreateCommentForm,
 	CreatePostForm,
 	Post,
+	PostResponse,
 	UpdatePostForm,
 } from "post.type";
 import { db } from "../database/db";
 import { ApiError } from "../utils/ApiError";
-import { logger } from "../utils/logger";
 
-export const getAllPosts = async (mutedWords: MutedWord[]) => {
+export const getAllPosts = async (
+	mutedWords: MutedWord[],
+): Promise<PostResponse[]> => {
 	const rawPosts = await db.post.findMany();
 
-	const posts: Post[] = [];
+	const posts: PostResponse[] = [];
 
 	for (const rawPost of rawPosts) {
 		const likes = await db.like.findMany({
@@ -29,13 +32,32 @@ export const getAllPosts = async (mutedWords: MutedWord[]) => {
 			},
 		});
 
-		const comments: Comment[] = [];
+		const comments: CommentResponse[] = [];
 
 		for (const rawComment of rawComments) {
 			const comment: Comment = {
 				...rawComment,
 				isVisible: true,
 			};
+
+			const user = await db.user.findUnique({
+				where: {
+					id: comment.userId,
+				},
+				select: {
+					id: true,
+					name: true,
+					username: true,
+					email: true,
+					avatarUrl: true,
+					createdAt: true,
+					updatedAt: true,
+				},
+			});
+
+			if (!user) {
+				throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+			}
 
 			for (const mutedWord of mutedWords) {
 				if (
@@ -46,14 +68,37 @@ export const getAllPosts = async (mutedWords: MutedWord[]) => {
 				}
 			}
 
-			comments.push(comment);
+			comments.push({
+				...comment,
+				user,
+			});
 		}
 
-		const post: Post = {
+		const user = await db.user.findUnique({
+			where: {
+				id: rawPost.authorId,
+			},
+			select: {
+				id: true,
+				name: true,
+				username: true,
+				email: true,
+				avatarUrl: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
+
+		if (!user) {
+			throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+		}
+
+		const post: PostResponse = {
 			...rawPost,
 			likes,
 			comments,
 			isVisible: true,
+			author: user,
 		};
 
 		for (const mutedWord of mutedWords) {
@@ -69,7 +114,10 @@ export const getAllPosts = async (mutedWords: MutedWord[]) => {
 	return posts;
 };
 
-export const getPostById = async (id: string, mutedWords: MutedWord[]) => {
+export const getPostById = async (
+	id: string,
+	mutedWords: MutedWord[],
+): Promise<PostResponse> => {
 	const rawPost = await db.post.findUnique({
 		where: {
 			id,
@@ -92,13 +140,32 @@ export const getPostById = async (id: string, mutedWords: MutedWord[]) => {
 		},
 	});
 
-	const comments: Comment[] = [];
+	const comments: CommentResponse[] = [];
 
 	for (const rawComment of rawComments) {
 		const comment: Comment = {
 			...rawComment,
 			isVisible: true,
 		};
+
+		const user = await db.user.findUnique({
+			where: {
+				id: comment.userId,
+			},
+			select: {
+				id: true,
+				name: true,
+				username: true,
+				email: true,
+				avatarUrl: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
+
+		if (!user) {
+			throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+		}
 
 		for (const mutedWord of mutedWords) {
 			if (
@@ -109,13 +176,33 @@ export const getPostById = async (id: string, mutedWords: MutedWord[]) => {
 			}
 		}
 
-		comments.push(comment);
+		comments.push({ ...comment, user });
 	}
 
-	const post: Post = {
+	const user = await db.user.findUnique({
+		where: {
+			id: rawPost.authorId,
+		},
+		select: {
+			id: true,
+			name: true,
+			username: true,
+			email: true,
+			avatarUrl: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	});
+
+	if (!user) {
+		throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+	}
+
+	const post: PostResponse = {
 		...rawPost,
 		likes,
 		comments,
+		author: user,
 		isVisible: true,
 	};
 
@@ -132,14 +219,14 @@ export const getPostById = async (id: string, mutedWords: MutedWord[]) => {
 export const getPostsByUserId = async (
 	userId: string,
 	mutedWords: MutedWord[],
-) => {
+): Promise<PostResponse[]> => {
 	const rawPosts = await db.post.findMany({
 		where: {
 			authorId: userId,
 		},
 	});
 
-	const posts: Post[] = [];
+	const posts: PostResponse[] = [];
 
 	for (const rawPost of rawPosts) {
 		const likes = await db.like.findMany({
@@ -154,13 +241,32 @@ export const getPostsByUserId = async (
 			},
 		});
 
-		const comments: Comment[] = [];
+		const comments: CommentResponse[] = [];
 
 		for (const rawComment of rawComments) {
 			const comment: Comment = {
 				...rawComment,
 				isVisible: true,
 			};
+
+			const user = await db.user.findUnique({
+				where: {
+					id: comment.userId,
+				},
+				select: {
+					id: true,
+					name: true,
+					username: true,
+					email: true,
+					avatarUrl: true,
+					createdAt: true,
+					updatedAt: true,
+				},
+			});
+
+			if (!user) {
+				throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+			}
 
 			for (const mutedWord of mutedWords) {
 				if (
@@ -171,13 +277,33 @@ export const getPostsByUserId = async (
 				}
 			}
 
-			comments.push(comment);
+			comments.push({ ...comment, user });
 		}
 
-		const post: Post = {
+		const user = await db.user.findUnique({
+			where: {
+				id: rawPost.authorId,
+			},
+			select: {
+				id: true,
+				name: true,
+				username: true,
+				email: true,
+				avatarUrl: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
+
+		if (!user) {
+			throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+		}
+
+		const post: PostResponse = {
 			...rawPost,
 			likes,
 			comments,
+			author: user,
 			isVisible: true,
 		};
 
@@ -251,14 +377,14 @@ export const deleteLike = async (id: string) => {
 export const getPostComments = async (
 	postId: string,
 	mutedWords: MutedWord[],
-) => {
+): Promise<CommentResponse[]> => {
 	const rawComments = await db.comment.findMany({
 		where: {
 			postId,
 		},
 	});
 
-	const comments: Comment[] = [];
+	const comments: CommentResponse[] = [];
 
 	for (const rawComment of rawComments) {
 		const comment: Comment = {
@@ -275,7 +401,26 @@ export const getPostComments = async (
 			}
 		}
 
-		comments.push(comment);
+		const user = await db.user.findUnique({
+			where: {
+				id: comment.userId,
+			},
+			select: {
+				id: true,
+				name: true,
+				username: true,
+				email: true,
+				avatarUrl: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
+
+		if (!user) {
+			throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+		}
+
+		comments.push({ ...comment, user });
 	}
 
 	return comments;

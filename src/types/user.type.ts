@@ -23,3 +23,13 @@ export interface User {
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+export interface UserResponse {
+	id: string;
+	name: string;
+	username: string;
+	email: string;
+	avatarUrl: string;
+	createdAt: Date;
+	updatedAt: Date;
+}
