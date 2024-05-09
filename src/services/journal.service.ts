@@ -138,7 +138,9 @@ export const getJournalsByUserId = async (
 
 export const createJournal = async (journal: CreateJournalForm) => {
 	journal.mood =
-		Object.values(Mood).find((mood) => mood === journal.mood) || Mood.FINE;
+		Object.values(Mood).find(
+			(mood) => mood.toLowerCase() === journal.mood.toLowerCase(),
+		) || Mood.FINE;
 
 	return db.journal.create({
 		data: {
