@@ -1,3 +1,5 @@
+import type { User, UserResponse } from "user.type";
+
 export interface CreatePostForm {
 	content: string;
 	imageUrl: string;
@@ -39,5 +41,32 @@ export interface Post {
 	likes: Like[];
 	comments: Comment[];
 	isVisible: boolean;
+	createdAt: Date;
+}
+
+export interface PostResponse {
+	id: string;
+	content: string;
+	imageUrl: string;
+	author: UserResponse;
+	likes: Like[];
+	comments: CommentResponse[];
+	isVisible: boolean;
+	createdAt: Date;
+}
+
+export interface CommentResponse {
+	id: string;
+	content: string;
+	user: UserResponse;
+	postId: string;
+	isVisible: boolean;
+	createdAt: Date;
+}
+
+export interface LikeResponse {
+	id: string;
+	user: UserResponse;
+	postId: string;
 	createdAt: Date;
 }
